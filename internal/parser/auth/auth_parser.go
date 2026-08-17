@@ -68,12 +68,18 @@ func ParseLine(line string) (logs.Event, error) {
 		return logs.Event{}, fmt.Errorf("parsing timestamp: %w", err)
 	}
 
+	outcome := "failure"
+    if groups["status"] == "Accepted" {
+        outcome = "success"
+    }
+
 	return logs.Event{
 		Timestamp:  ts,
 		SourceIP:   groups["ip"],
 		User:       groups["user"],
 		EventType:  "auth",
 		Host:       groups["host"],
+		Outcome: 	outcome,
 		RawMessage: line,
 	}, nil
 }
