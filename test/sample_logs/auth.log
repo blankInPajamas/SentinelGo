@@ -1,0 +1,25 @@
+Aug 17 20:58:11 web01 sshd[10234]: Accepted password for deploy from 198.51.100.7 port 51520 ssh2
+Aug 17 20:59:02 web01 sshd[10245]: Failed password for invalid user admin from 203.0.113.5 port 41332 ssh2
+Aug 17 20:59:05 web01 sshd[10246]: Failed password for invalid user admin from 203.0.113.5 port 41335 ssh2
+Aug 17 20:59:09 web01 sshd[10247]: Failed password for invalid user admin from 203.0.113.5 port 41338 ssh2
+Aug 17 20:59:13 web01 sshd[10248]: Failed password for invalid user admin from 203.0.113.5 port 41341 ssh2
+Aug 17 20:59:17 web01 sshd[10249]: Failed password for invalid user admin from 203.0.113.5 port 41344 ssh2
+Aug 17 20:59:21 web01 sshd[10250]: Failed password for invalid user admin from 203.0.113.5 port 41347 ssh2
+Aug 17 21:00:45 web01 sshd[10260]: Failed password for root from 203.0.113.5 port 41360 ssh2
+Aug 17 21:00:49 web01 sshd[10261]: Failed password for root from 203.0.113.5 port 41363 ssh2
+Aug 17 21:02:10 web01 sshd[10275]: Accepted publickey for deploy from 198.51.100.7 port 51600 ssh2
+Aug 17 21:05:33 web01 sshd[10290]: Failed password for invalid user oracle from 192.0.2.44 port 39210 ssh2
+Aug 17 21:05:37 web01 sshd[10291]: Failed password for invalid user oracle from 192.0.2.44 port 39213 ssh2
+Aug 17 21:05:41 web01 sshd[10292]: Failed password for invalid user oracle from 192.0.2.44 port 39216 ssh2
+Aug 17 21:10:02 web01 sshd[10310]: Accepted password for alice from 198.51.100.20 port 52140 ssh2
+Aug 17 21:15:19 web01 sshd[10325]: Failed password for invalid user test from 203.0.113.5 port 41500 ssh2
+Aug 17 21:15:23 web01 sshd[10326]: Failed password for invalid user test from 203.0.113.5 port 41503 ssh2
+Aug 17 21:15:27 web01 sshd[10327]: Failed password for invalid user test from 203.0.113.5 port 41506 ssh2
+Aug 17 21:15:31 web01 sshd[10328]: Failed password for invalid user test from 203.0.113.5 port 41509 ssh2
+Aug 17 21:15:35 web01 sshd[10329]: Failed password for invalid user test from 203.0.113.5 port 41512 ssh2
+Aug 17 21:20:00 web01 sshd[10340]: Accepted password for bob from 198.51.100.33 port 53210 ssh2
+Aug 17 21:22:14 web01 sshd[10355]: Failed password for invalid user guest from 198.51.100.99 port 40001 ssh2
+Aug 17 21:25:47 web01 sshd[10370]: Connection closed by authenticating user root 203.0.113.5 port 41700 [preauth]
+Aug 17 21:30:12 web01 sshd[10385]: Accepted password for deploy from 198.51.100.7 port 51900 ssh2
+Aug 17 21:35:00 web01 sshd[10400]: Failed password for invalid user admin from 203.0.113.9 port 42100 ssh2
+Aug 17 21:35:04 web01 sshd[10401]: Failed password for invalid user admin from 203.0.113.9 port 42103 ssh2
