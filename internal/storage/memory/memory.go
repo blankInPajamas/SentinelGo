@@ -12,6 +12,12 @@ type InMemoryStorage struct {
 	events []logs.Event
 }
 
+func New() *InMemoryStorage {
+	return &InMemoryStorage{
+		events: make([]logs.Event, 0),
+	}
+}
+
 func (s *InMemoryStorage) Save(event logs.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
