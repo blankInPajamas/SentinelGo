@@ -42,8 +42,13 @@ sentinelgo/
 ├── cmd/sentinelgo/       # entry point (main.go)
 ├── internal/
 │   ├── logs/             # shared Event schema (model.go)
-│   └── parser/
-│      └── auth/         # SSH auth log parser
+│   ├── parser/
+│   │   └── auth/         # SSH auth log parser
+│   ├── collector/
+│   │   └── syslog/       # UDP syslog listener
+│   └── storage/
+│       ├── storage.go    # Storage interface
+│       └── memory/       # In-memory storage implementation
 ├── test/sample_logs/     # sample logs for local testing
 ├── go.mod
 └── README.md
@@ -60,3 +65,17 @@ go test -v ./...
 ```
 
 Expected output: 24 parsed events with a mix of `success` and `failure` outcomes, and all tests passing.
+
+## Live Ingestion (Syslog Collector)
+
+```bash
+# Start the collector (listens on UDP port 1514)
+go run cmd/sentinelgo/main.go
+
+# In another terminal, send test syslog messages:
+echo "Aug 18 13:00:00 web01 sshd[1234]: Failed password for admin from 203.0.113.5 port 12345" | nc -u -w1 127.0.0.1 1514
+
+# Expected output: "Saved event: 13:00:00 | failure from 203.0.113.5"
+```
+
+Press `Ctrl+C` to gracefully shut down the collector.
