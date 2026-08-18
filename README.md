@@ -23,14 +23,15 @@ We're starting with **authentication logs** (SSH/syslog-based auth events) as th
 2. Created sample auth log data (`test/sample_logs/auth.log`) with realistic SSH login patterns.
 3. Implemented the SSH auth log parser (`internal/parser/auth/auth_parser.go`) that converts raw syslog lines into structured `Event` values.
 4. Verified end-to-end parsing: running `go run cmd/sentinelgo/main.go` successfully parses 24 events from the sample log, correctly distinguishing successful logins from failed attempts.
+5. Built in-memory storage layer (`internal/storage/memory/memory.go`) with thread-safe Save/Query operations using `sync.RWMutex`.
+6. Implemented comprehensive storage tests covering filtering by time/IP/user/outcome, pagination (limit/offset), and concurrent access.
+7. Added integration tests (`cmd/sentinelgo/main_test.go`) verifying parser → storage end-to-end flow.
 
 **Next steps in progress:**
 
-5. Write unit tests for the parser to ensure it handles all auth log variants and gracefully skips unrecognized lines.
-6. Build a basic in-memory storage layer to persist parsed events.
-7. Implement the first detection rule: brute-force detection (N failed logins from the same source IP within T seconds).
-8. Add a console notifier to print alerts when the brute-force rule fires.
-9. Expose a minimal REST API (`GET /events`, `GET /alerts`) to verify data end-to-end.
+8. Implement the first detection rule: brute-force detection (N failed logins from the same source IP within T seconds).
+9. Add a console notifier to print alerts when the brute-force rule fires.
+10. Expose a minimal REST API (`GET /events`, `GET /alerts`) to verify data end-to-end.
 
 Once this loop works — raw auth log in, brute-force alert out — the plan is to expand to additional log sources (firewall, cloud audit logs, endpoint/EDR) using the same collector/parser/storage/detector interfaces, without needing to rework the pipeline itself.
 
@@ -47,3 +48,15 @@ sentinelgo/
 ├── go.mod
 └── README.md
 ```
+
+## Quick Start
+
+```bash
+# Run the parser + storage integration against the sample auth log
+go run cmd/sentinelgo/main.go
+
+# Run all tests
+go test -v ./...
+```
+
+Expected output: 24 parsed events with a mix of `success` and `failure` outcomes, and all tests passing.
