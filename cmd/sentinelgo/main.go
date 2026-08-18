@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/blankInPajamas/SentinelGo/internal/parser/auth"
 	"github.com/blankInPajamas/SentinelGo/internal/collector/syslog"
+	"github.com/blankInPajamas/SentinelGo/internal/parser/auth"
 	"github.com/blankInPajamas/SentinelGo/internal/storage/memory"
 )
 
@@ -44,7 +44,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "collector error: %v\n", err)
 		}
 	}()
-	
+
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 	<-sigChan

@@ -8,7 +8,7 @@ import (
 )
 
 type InMemoryStorage struct {
-	mu sync.RWMutex
+	mu     sync.RWMutex
 	events []logs.Event
 }
 
@@ -74,7 +74,7 @@ func (s *InMemoryStorage) Count() int {
 
 	return len(s.events)
 }
-	
-func (s * InMemoryStorage) Close() error {
+
+func (s *InMemoryStorage) Close() error {
 	return nil
 }

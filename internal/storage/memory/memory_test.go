@@ -83,7 +83,7 @@ func TestInMemoryStorage_QueryBySourceIP(t *testing.T) {
 }
 
 func TestInMemoryStorage_QueryWithLimitAndOffset(t *testing.T) {
-	
+
 	s := memory.New()
 
 	now := time.Now()
@@ -103,7 +103,6 @@ func TestInMemoryStorage_QueryWithLimitAndOffset(t *testing.T) {
 		t.Fatalf("Expected 5 success results, got %d", len(results))
 	}
 
-	
 	results, err = s.Query(storage.QueryFilter{Offset: 7})
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
@@ -132,7 +131,7 @@ func TestInMemoryStorage_QueryWithLimitAndOffset(t *testing.T) {
 }
 
 func TestInMemoryStorage_Count(t *testing.T) {
-	
+
 	s := memory.New()
 
 	if s.Count() != 0 {

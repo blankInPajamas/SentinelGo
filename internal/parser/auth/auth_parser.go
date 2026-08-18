@@ -69,9 +69,9 @@ func ParseLine(line string) (logs.Event, error) {
 	}
 
 	outcome := "failure"
-    if groups["status"] == "Accepted" {
-        outcome = "success"
-    }
+	if groups["status"] == "Accepted" {
+		outcome = "success"
+	}
 
 	return logs.Event{
 		Timestamp:  ts,
@@ -79,7 +79,7 @@ func ParseLine(line string) (logs.Event, error) {
 		User:       groups["user"],
 		EventType:  "auth",
 		Host:       groups["host"],
-		Outcome: 	outcome,
+		Outcome:    outcome,
 		RawMessage: line,
 	}, nil
 }

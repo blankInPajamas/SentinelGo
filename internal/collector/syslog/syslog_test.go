@@ -9,7 +9,6 @@ import (
 	"github.com/blankInPajamas/SentinelGo/internal/collector/syslog"
 )
 
-
 func TestSysCollector_StartAndClose(t *testing.T) {
 	collector := syslog.New(":0") // Port 0 = let OS pick random available port
 
