@@ -130,3 +130,28 @@ func TestInMemoryStorage_QueryWithLimitAndOffset(t *testing.T) {
 		t.Fatalf("Expected 0 events with Offset=15, got %d", len(results))
 	}
 }
+
+func TestInMemoryStorage_Count(t *testing.T) {
+	
+	s := memory.New()
+
+	if s.Count() != 0 {
+		t.Fatalf("Expected 0 events initially, received %d", s.Count())
+	}
+
+	s.Save(logs.Event{Timestamp: time.Now(), User: "alice"})
+	s.Save(logs.Event{Timestamp: time.Now(), User: "bob"})
+	s.Save(logs.Event{Timestamp: time.Now(), User: "charlie"})
+
+	if s.Count() != 3 {
+		t.Fatalf("Expected 3 events, received %d", s.Count())
+	}
+
+	for i := 0; i < 5; i++ {
+		s.Save(logs.Event{Timestamp: time.Now(), User: "user"})
+	}
+
+	if s.Count() != 8 {
+		t.Fatalf("Expected 8 events total, got %d", s.Count())
+	}
+}
