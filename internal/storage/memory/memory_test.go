@@ -155,3 +155,35 @@ func TestInMemoryStorage_Count(t *testing.T) {
 		t.Fatalf("Expected 8 events total, got %d", s.Count())
 	}
 }
+
+func TestInMemoryStorage_ConcurrentAccess(t *testing.T) {
+
+	s := memory.New()
+
+	done := make(chan bool, 100) // 100 Goroutines
+
+	for i := 0; i < 100; i++ {
+		go func() {
+			s.Save(logs.Event{Timestamp: time.Now(), User: "concurrent"})
+			done <- true
+		}()
+	}
+
+	for i := 0; i < 100; i++ {
+		<-done
+	}
+
+	if s.Count() != 100 {
+		t.Fatalf("Expected 100 events after concurrent writes, got %d", s.Count())
+	}
+
+	results, err := s.Query(storage.QueryFilter{})
+
+	if err != nil {
+		t.Fatalf("Query after concurrent writes failed: %v", err)
+	}
+
+	if len(results) != 100 {
+		t.Fatalf("Expected 100 events from query, got %d", len(results))
+	}
+}
