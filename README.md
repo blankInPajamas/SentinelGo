@@ -26,12 +26,14 @@ We're starting with **authentication logs** (SSH/syslog-based auth events) as th
 5. Built in-memory storage layer (`internal/storage/memory/memory.go`) with thread-safe Save/Query operations using `sync.RWMutex`.
 6. Implemented comprehensive storage tests covering filtering by time/IP/user/outcome, pagination (limit/offset), and concurrent access.
 7. Added integration tests (`cmd/sentinelgo/main_test.go`) verifying parser → storage end-to-end flow.
+8. Implement the first detection rule: brute-force detection (N failed logins from the same source IP within T seconds).
+9. Add a console notifier to print alerts when the brute-force rule fires.
 
 **Next steps in progress:**
 
-8. Implement the first detection rule: brute-force detection (N failed logins from the same source IP within T seconds).
-9. Add a console notifier to print alerts when the brute-force rule fires.
-10. Expose a minimal REST API (`GET /events`, `GET /alerts`) to verify data end-to-end.
+10. Add alert deduplication to prevent repeated alerts for the same IP within a cooldown period.
+11. Expose a minimal REST API (`GET /events`, `GET /alerts`) to verify data end-to-end.
+12. Build a simple web dashboard or integrate Grafana for visualization.
 
 Once this loop works — raw auth log in, brute-force alert out — the plan is to expand to additional log sources (firewall, cloud audit logs, endpoint/EDR) using the same collector/parser/storage/detector interfaces, without needing to rework the pipeline itself.
 
@@ -46,9 +48,12 @@ sentinelgo/
 │   │   └── auth/         # SSH auth log parser
 │   ├── collector/
 │   │   └── syslog/       # UDP syslog listener
-│   └── storage/
-│       ├── storage.go    # Storage interface
-│       └── memory/       # In-memory storage implementation
+│   ├── storage/
+│   │   ├── storage.go    # Storage interface
+│   │   └── memory/       # In-memory storage implementation
+│   ├── detector/
+│   │   └── bruteforce/   # Brute-force detection rule
+│   └── alert/            # Alert struct definition
 ├── test/sample_logs/     # sample logs for local testing
 ├── go.mod
 └── README.md
@@ -59,7 +64,9 @@ sentinelgo/
 ```bash
 # Run the parser + storage integration against the sample auth log
 go run cmd/sentinelgo/main.go
+```
 
+```bash
 # Run all tests
 go test -v ./...
 ```
@@ -71,7 +78,9 @@ Expected output: 24 parsed events with a mix of `success` and `failure` outcomes
 ```bash
 # Start the collector (listens on UDP port 1514)
 go run cmd/sentinelgo/main.go
+```
 
+```bash
 # In another terminal, send test syslog messages:
 echo "Aug 18 13:00:00 web01 sshd[1234]: Failed password for admin from 203.0.113.5 port 12345" | nc -u -w1 127.0.0.1 1514
 
@@ -79,3 +88,25 @@ echo "Aug 18 13:00:00 web01 sshd[1234]: Failed password for admin from 203.0.113
 ```
 
 Press `Ctrl+C` to gracefully shut down the collector.
+
+## Testing Brute-Force Detection
+
+To see the detector in action, send 5+ failed logins from the same IP within 60 seconds:
+
+```bash
+# Start SentinelGo
+go run cmd/sentinelgo/main.go
+```
+
+```bash
+# In another terminal, send a burst of failed logins:
+for i in {1..6}; do
+  echo "Aug 18 14:00:0$i web01 sshd[200$i]: Failed password for admin from 10.0.0.99 port 4000$i" | nc -u -w1 127.0.0.1 1514
+  sleep 0.5
+done
+
+# Wait up to 10 seconds for the detector to scan
+# Expected output: "🚨 ALERT [high]: brute-force-ssh - Detected 6 failed logins from 10.0.0.99 in 1m0s"
+```
+
+The detector scans every 10 seconds, so alerts may take up to 10 seconds to appear after the threshold is breached.
