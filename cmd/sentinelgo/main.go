@@ -20,7 +20,7 @@ func main() {
 	defer store.Close()
 
 	collector := syslog.New(":1514")
-	detector := bruteforce.New(store, 5, 60*time.Second, 10*time.Second)
+	detector := bruteforce.New(store, 5, 60*time.Second, 10*time.Second, 5*time.Minute)
 
 	alertChan := make(chan alert.Alert, 100)
 

@@ -18,14 +18,19 @@ type BruteForceDetector struct {
 	checkInterval time.Duration
 	mu            sync.Mutex
 	lastCheck     time.Time
+
+	cooldown	time.Duration
+	alerted 	map[string]time.Time
 }
 
-func New(store storage.Storage, threshold int, timeWindow time.Duration, checkInterval time.Duration) *BruteForceDetector {
+func New(store storage.Storage, threshold int, timeWindow time.Duration, checkInterval time.Duration, cooldown time.Duration) *BruteForceDetector {
 	return &BruteForceDetector{
 		store:         store,
 		threshold:     threshold,
 		timeWindow:    timeWindow,
 		checkInterval: checkInterval,
+		cooldown: cooldown,
+		alerted: make(map[string]time.Time),
 	}
 }
 
@@ -74,9 +79,17 @@ func (d *BruteForceDetector) detect(
 		ipFailures[e.SourceIP] = append(ipFailures[e.SourceIP], e)
 	}
 
+	// Checking for failed IPs
 	for ip, failures := range ipFailures {
 		if len(failures) < d.threshold {
 			continue
+		}
+
+		// Checking cooldown
+		if lastAlerted, ok := d.alerted[ip]; ok {
+			if now.Sub(lastAlerted) < d.cooldown {
+				continue // Skip
+			}
 		}
 
 		user := d.mostTargetedUser(failures)
@@ -95,6 +108,8 @@ func (d *BruteForceDetector) detect(
 			),
 			EventCount: len(failures),
 		}
+
+		d.alerted[ip] = now
 	}
 
 	d.lastCheck = now
