@@ -53,6 +53,11 @@ func (s *SysLogCollector) Start(ctx context.Context, handler func(line string)) 
 		default:
 
 			s.conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+			
+			if err := s.conn.SetReadDeadline(time.Now().Add(1 * time.Second)); err != nil {
+					return err
+				}
+			
 			n, _, err := conn.ReadFromUDP(buffer)
 			if err != nil {
 				if netErr, ok := err.(net.Error); ok && netErr.Timeout() {

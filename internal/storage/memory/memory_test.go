@@ -14,11 +14,16 @@ func TestInMemoryStorage_SaveAndQueryAll(t *testing.T) {
 
 	event1 := logs.Event{Timestamp: time.Now(), User: "alice", Outcome: "success"}
 	event2 := logs.Event{Timestamp: time.Now(), User: "bob", Outcome: "failure"}
-	s.Save(event1)
-	s.Save(event2)
+
+	if err := s.Save(event1); err != nil {
+		t.Fatalf("unexpected error saving event1: %v", err)
+	}
+
+	if err := s.Save(event2); err != nil {
+		t.Fatalf("unexpected error saving event2: %v", err)
+	}
 
 	results, err := s.Query(storage.QueryFilter{})
-
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
@@ -109,7 +114,7 @@ func TestInMemoryStorage_QueryWithLimitAndOffset(t *testing.T) {
 	}
 
 	if len(results) != 3 {
-		t.Fatalf("Expected 3 results with Offset=7, got %d", err)
+		t.Fatalf("Expected 3 results with Offset=7, got %d", len(results))
 	}
 
 	results, err = s.Query(storage.QueryFilter{Limit: 2, Offset: 3})
