@@ -28,10 +28,10 @@ We're starting with **authentication logs** (SSH/syslog-based auth events) as th
 7. Added integration tests (`cmd/sentinelgo/main_test.go`) verifying parser → storage end-to-end flow.
 8. Implement the first detection rule: brute-force detection (N failed logins from the same source IP within T seconds).
 9. Add a console notifier to print alerts when the brute-force rule fires.
+10. Add alert deduplication to prevent repeated alerts for the same IP within a cooldown period.
 
 **Next steps in progress:**
 
-10. Add alert deduplication to prevent repeated alerts for the same IP within a cooldown period.
 11. Expose a minimal REST API (`GET /events`, `GET /alerts`) to verify data end-to-end.
 12. Build a simple web dashboard or integrate Grafana for visualization.
 
