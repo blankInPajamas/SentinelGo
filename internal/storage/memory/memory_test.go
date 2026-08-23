@@ -40,9 +40,15 @@ func TestInMemoryStorage_QueryByOutcome(t *testing.T) {
 	event2 := logs.Event{Timestamp: time.Now(), User: "dejong", Outcome: "success"}
 	event3 := logs.Event{Timestamp: time.Now(), User: "bob", Outcome: "failure"}
 
-	s.Save(event1)
-	s.Save(event2)
-	s.Save(event3)
+	if err := s.Save(event1); err != nil {
+		t.Fatalf("unexpected error saving event1: %v", err)
+	}
+	if err := s.Save(event2); err != nil {
+		t.Fatalf("unexpected error saving event2: %v", err)
+	}
+	if err := s.Save(event3); err != nil {
+		t.Fatalf("unexpected error saving event3: %v", err)
+	}
 
 	results, err := s.Query(storage.QueryFilter{})
 
@@ -70,9 +76,15 @@ func TestInMemoryStorage_QueryBySourceIP(t *testing.T) {
 	event2 := logs.Event{Timestamp: time.Now(), SourceIP: "192.168.1.1", Outcome: "success"}
 	event3 := logs.Event{Timestamp: time.Now(), SourceIP: "192.168.1.2", Outcome: "failure"}
 
-	s.Save(event1)
-	s.Save(event2)
-	s.Save(event3)
+	if err := s.Save(event1); err != nil {
+		t.Fatalf("unexpected error saving event1: %v", err)
+	}
+	if err := s.Save(event2); err != nil {
+		t.Fatalf("unexpected error saving event2: %v", err)
+	}
+	if err := s.Save(event3); err != nil {
+		t.Fatalf("unexpected error saving event3: %v", err)
+}
 
 	results, err := s.Query(storage.QueryFilter{
 		SourceIP: "192.168.1.1",
@@ -143,9 +155,15 @@ func TestInMemoryStorage_Count(t *testing.T) {
 		t.Fatalf("Expected 0 events initially, received %d", s.Count())
 	}
 
-	s.Save(logs.Event{Timestamp: time.Now(), User: "alice"})
-	s.Save(logs.Event{Timestamp: time.Now(), User: "bob"})
-	s.Save(logs.Event{Timestamp: time.Now(), User: "charlie"})
+	if err := s.Save(logs.Event{Timestamp: time.Now(), User: "alice"}); err != nil {
+		t.Fatalf("unexpected error saving alice: %v", err)
+	}
+	if err := s.Save(logs.Event{Timestamp: time.Now(), User: "bob"}); err != nil {
+		t.Fatalf("unexpected error saving bob: %v", err)
+	}
+	if err := s.Save(logs.Event{Timestamp: time.Now(), User: "charlie"}); err != nil {
+		t.Fatalf("unexpected error saving charlie: %v", err)
+	}
 
 	if s.Count() != 3 {
 		t.Fatalf("Expected 3 events, received %d", s.Count())

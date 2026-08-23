@@ -51,9 +51,7 @@ func (s *SysLogCollector) Start(ctx context.Context, handler func(line string)) 
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
-
-			s.conn.SetReadDeadline(time.Now().Add(1 * time.Second))
-			
+		
 			if err := s.conn.SetReadDeadline(time.Now().Add(1 * time.Second)); err != nil {
 					return err
 				}
