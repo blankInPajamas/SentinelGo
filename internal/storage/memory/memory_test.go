@@ -105,7 +105,9 @@ func TestInMemoryStorage_QueryWithLimitAndOffset(t *testing.T) {
 
 	now := time.Now()
 	for i := 0; i < 10; i++ {
-		s.Save(logs.Event{Timestamp: now, User: "user"})
+		if err := s.Save(logs.Event{Timestamp: now, User: "user"}); err != nil {
+			t.Fatalf("unexpected error saving event at index %d: %v", i, err)
+		}
 	}
 
 	results, err := s.Query(storage.QueryFilter{
@@ -170,7 +172,9 @@ func TestInMemoryStorage_Count(t *testing.T) {
 	}
 
 	for i := 0; i < 5; i++ {
-		s.Save(logs.Event{Timestamp: time.Now(), User: "user"})
+		if err := s.Save(logs.Event{Timestamp: time.Now(), User: "user"}); err != nil {
+			t.Fatalf("unexpected error saving event at index %d: %v", i, err)
+		}
 	}
 
 	if s.Count() != 8 {
@@ -186,7 +190,9 @@ func TestInMemoryStorage_ConcurrentAccess(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		go func() {
-			s.Save(logs.Event{Timestamp: time.Now(), User: "concurrent"})
+			if err := s.Save(logs.Event{Timestamp: time.Now(), User: "concurrent"}); err != nil {
+				t.Errorf("concurrent save failed: %v", err)
+			}
 			done <- true
 		}()
 	}
