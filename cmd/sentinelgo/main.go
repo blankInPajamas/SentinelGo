@@ -13,6 +13,7 @@ import (
 	"github.com/blankInPajamas/SentinelGo/internal/detector/bruteforce"
 	"github.com/blankInPajamas/SentinelGo/internal/parser/auth"
 	"github.com/blankInPajamas/SentinelGo/internal/storage/memory"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -69,6 +70,15 @@ func main() {
 				a.Severity, a.Rule, a.Message, a.User, a.EventCount)
 		}
 	}()
+
+	// Routing
+	router := gin.Default()
+
+	v1 := router.Group("/v1")
+	{
+		v1.GET("/events", GetEventHandler)
+		v1.GET("/alerts", GetAlertHandler)
+	}
 
 	// Wait for Ctrl+C (SIGINT) or SIGTERM
 	sigChan := make(chan os.Signal, 1)
