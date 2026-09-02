@@ -1,10 +1,22 @@
-FROM ubuntu:24.04
-
-RUN apt-get update && apt-get install -y golang make ca-certificates
+# Stage 01
+FROM golang:1.26 AS builder
 
 WORKDIR /app
 
+COPY go.mod go.sum* ./
+RUN go mod download
 COPY . .
 
-CMD ["make","run"]
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/sentinelgo
+
+# Stage 02
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/main .
+
+EXPOSE 1514
+
+CMD ["./main"]
 
