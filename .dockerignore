@@ -1,0 +1,26 @@
+# Git tracking
+.git
+.gitignore
+
+# Python bytecode and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Environment secrets and local config
+.env
+*.env
+*.log
+
+# IDE and OS metadata
+.idea/
+.vscode/
+.DS_Store
+
+# Docker meta-files
+Dockerfile
+.dockerignore
+docker-compose*.yml
