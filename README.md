@@ -26,14 +26,15 @@ We're starting with **authentication logs** (SSH/syslog-based auth events) as th
 5. Built in-memory storage layer (`internal/storage/memory/memory.go`) with thread-safe Save/Query operations using `sync.RWMutex`.
 6. Implemented comprehensive storage tests covering filtering by time/IP/user/outcome, pagination (limit/offset), and concurrent access.
 7. Added integration tests (`cmd/sentinelgo/main_test.go`) verifying parser → storage end-to-end flow.
-8. Implement the first detection rule: brute-force detection (N failed logins from the same source IP within T seconds).
-9. Add a console notifier to print alerts when the brute-force rule fires.
-10. Add alert deduplication to prevent repeated alerts for the same IP within a cooldown period.
+8. Implemented the first detection rule: brute-force detection (N failed logins from the same source IP within T seconds).
+9. Added a console notifier to print alerts when the brute-force rule fires.
+10. Added alert deduplication to prevent repeated alerts for the same IP within a cooldown period.
+11. Created a multi-stage `Dockerfile` optimizing the final container image size down to ~20MB.
 
 **Next steps in progress:**
 
-11. Expose a minimal REST API (`GET /events`, `GET /alerts`) to verify data end-to-end.
-12. Build a simple web dashboard or integrate Grafana for visualization.
+12. Expose a minimal REST API (`GET /events`, `GET /alerts`) to verify data end-to-end.
+13. Build a simple web dashboard or integrate Grafana for visualization.
 
 Once this loop works — raw auth log in, brute-force alert out — the plan is to expand to additional log sources (firewall, cloud audit logs, endpoint/EDR) using the same collector/parser/storage/detector interfaces, without needing to rework the pipeline itself.
 
@@ -56,36 +57,66 @@ sentinelgo/
 │   └── alert/            # Alert struct definition
 ├── test/sample_logs/     # sample logs for local testing
 ├── go.mod
+├── .dockerignore
+├── Dockerfile
+├── Makefile
 └── README.md
 ```
 
 ## Quick Start
 
+Run the parser + storage integration against the sample auth log
+
 ```bash
-# Run the parser + storage integration against the sample auth log
 go run cmd/sentinelgo/main.go
 ```
 
+Run all tests
+
 ```bash
-# Run all tests
 go test -v ./...
 ```
 
 Expected output: 24 parsed events with a mix of `success` and `failure` outcomes, and all tests passing.
 
-## Live Ingestion (Syslog Collector)
+## Running with Docker
+
+SentinelGo uses a multi-stage Docker build to keep production images lightweight (**~20MB**, down from ~1.28GB in standard Go SDK images).
+
+### Build the Image
 
 ```bash
-# Start the collector (listens on UDP port 1514)
+docker build -t sentinelgo:v1 .
+```
+### Run the Container
+
+Map UDP port 1514 to receive syslog traffic:
+
+```bash
+docker run -d -p 1514:1514/udp --name sentinelgo-app sentinelgo:v1
+```
+
+### View live container logs
+
+```bash
+docker logs -f sentinelgo-app
+```
+
+## Live Ingestion (Syslog Collector)
+
+Start the collector (listens on UDP port 1514)
+
+```bash
 go run cmd/sentinelgo/main.go
 ```
 
+In another terminal, send test syslog messages:
+
 ```bash
-# In another terminal, send test syslog messages:
 echo "Aug 18 13:00:00 web01 sshd[1234]: Failed password for admin from 203.0.113.5 port 12345" | nc -u -w1 127.0.0.1 1514
 
-# Expected output: "Saved event: 13:00:00 | failure from 203.0.113.5"
 ```
+Expected output: "Saved event: 13:00:00 | failure from 203.0.113.5"
 
 Press `Ctrl+C` to gracefully shut down the collector.
 
@@ -93,13 +124,15 @@ Press `Ctrl+C` to gracefully shut down the collector.
 
 To see the detector in action, send 5+ failed logins from the same IP within 60 seconds:
 
+Start SentinelGo
+
 ```bash
-# Start SentinelGo
 go run cmd/sentinelgo/main.go
 ```
 
+In another terminal, send a burst of failed logins:
+
 ```bash
-# In another terminal, send a burst of failed logins:
 for i in {1..6}; do
   echo "Aug 18 14:00:0$i web01 sshd[200$i]: Failed password for admin from 10.0.0.99 port 4000$i" | nc -u -w1 127.0.0.1 1514
   sleep 0.5
